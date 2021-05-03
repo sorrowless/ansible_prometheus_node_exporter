@@ -1,0 +1,69 @@
+---
+- name: Ensure config dir
+  become: yes
+  become_user: root
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+  with_items:
+    - "{{ node_exporter_config_dir }}"
+    - "{{ node_exporter_config_dir }}/sources"
+
+- name: Get node exporter
+  become: yes
+  become_user: root
+  get_url:
+    url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}.tar.gz"
+    dest: "{{ node_exporter_config_dir }}/sources/node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}.tar.gz"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: Unzip node exporter
+  become: yes
+  become_user: root
+  unarchive:
+    remote_src: yes
+    src: "{{ node_exporter_config_dir }}/sources/node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}.tar.gz"
+    dest: "{{ node_exporter_config_dir }}/sources/"
+    creates: "{{ node_exporter_config_dir }}/sources/node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}/node_exporter"
+
+- name: Copy exporter to PATH
+  become: yes
+  become_user: root
+  copy:
+    remote_src: yes
+    src: "{{ node_exporter_config_dir }}/sources/node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}/node_exporter"
+    dest: /usr/local/bin/node_exporter
+    mode: 0755
+    owner: root
+    group: root
+  notify:
+    - Restart node exporter
+
+- name: Exporters | Node exporter | Ensure node exporter systemd unit
+  become: yes
+  become_user: root
+  template:
+    src: systemd.service.j2
+    dest: "/etc/systemd/system/node-exporter.service"
+    owner: root
+    group: root
+    mode: 0644
+  register: systemd_unitfile
+  notify:
+    - Restart node exporter
+
+- name: Exporters | Node exporter | Enable systemd service
+  become: yes
+  become_user: root
+  systemd:
+    name: "node-exporter.service"
+    enabled: yes
+    daemon_reload: yes
+    state: started
+  when:
+    - systemd_unitfile.changed

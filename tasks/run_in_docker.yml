@@ -1,0 +1,24 @@
+---
+- name: Start docker node exporter container
+  docker_service:
+    state: present
+    project_name: prometheus_node_exporter
+    definition:
+      version: '2'
+      services:
+        node_exporter:
+          image: "{{ node_exporter_docker_image }}"
+          command: "--collector.systemd --path.rootfs=/host"
+          container_name: "{{ node_exporter_container_name }}"
+          ports:
+            - "127.0.0.1:{{ node_exporter_host_port }}:9100"
+          volumes:
+            - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
+            - /:/host:ro,rslave
+          hostname: "{{ ansible_host }}"
+          restart: always
+          labels: "{{ node_exporter_docker_labels }}"
+      networks:
+        default:
+          external:
+            name: "{{ node_exporter_docker_network_name }}"

@@ -1,0 +1,8 @@
+---
+- name: Include docker-related tasks
+  include_tasks: run_in_docker.yml
+  when: node_exporter_run_in_docker
+
+- name: Include standalone tasks
+  include_tasks: run_standalone.yml
+  when: not node_exporter_run_in_docker
