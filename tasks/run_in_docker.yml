@@ -8,7 +8,7 @@
       services:
         node_exporter:
           image: "{{ node_exporter_docker_image }}"
-          command: "--collector.systemd --path.rootfs=/host"
+          command: "--collector.systemd --path.rootfs=/host {{ node_exporter_additional_cmd_args }}"
           container_name: "{{ node_exporter_container_name }}"
           ports:
             - "127.0.0.1:{{ node_exporter_host_port }}:9100"
