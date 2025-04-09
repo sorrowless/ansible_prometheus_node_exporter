@@ -4,7 +4,6 @@
     state: present
     project_name: prometheus_node_exporter
     definition:
-      version: '2'
       services:
         node_exporter:
           image: "{{ node_exporter_docker_image }}"
@@ -28,5 +27,5 @@
           labels: "{{ node_exporter_docker_labels }}"
       networks:
         default:
-          external:
-            name: "{{ node_exporter_docker_network_name }}"
+          name: "{{ node_exporter_docker_network_name }}"
+          external: true
