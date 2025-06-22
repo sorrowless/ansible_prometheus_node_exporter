@@ -10,22 +10,18 @@
           command:
             - '--collector.systemd'
             - '--path.rootfs=/rootfs'
-            - '--path.procfs=/host/proc'
-            - '--path.sysfs=/host/sys'
-            - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+            - '--path.procfs=/rootfs/proc'
+            - '--path.sysfs=/rootfs/sys'
+            - '--path.udev.data=/rootfs/run/udev/data'
+            - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|etc)($$|/)'
+            - '--web.listen-address={{ node_exporter_host_address }}:{{ node_exporter_host_port }}'
             - '{{ node_exporter_additional_cmd_args }}'
           container_name: "{{ node_exporter_container_name }}"
-          ports:
-            - "127.0.0.1:{{ node_exporter_host_port }}:9100"
           volumes:
             - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
             - /:/rootfs:ro
-            - /proc:/host/proc:ro
-            - /sys:/host/sys:ro
+          security_opt: "{{ node_exporter_security_opt }}"
           hostname: "{{ ansible_host }}"
           restart: always
           labels: "{{ node_exporter_docker_labels }}"
-      networks:
-        default:
-          name: "{{ node_exporter_docker_network_name }}"
-          external: true
+          network_mode: host
