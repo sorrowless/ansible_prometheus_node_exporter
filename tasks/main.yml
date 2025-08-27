@@ -1,4 +1,7 @@
 ---
+- name: Include file collector tasks
+  include_tasks: file_collector_configure.yml
+
 - name: Include docker-related tasks
   include_tasks: run_in_docker.yml
   when: node_exporter_run_in_docker

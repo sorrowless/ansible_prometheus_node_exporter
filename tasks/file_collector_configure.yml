@@ -1,0 +1,32 @@
+- name: Ensure textfile_collector dir
+  become: true
+  become_user: root
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+  with_items:
+    - "{{ node_exporter_config_dir }}"
+    - "{{ node_exporter_config_dir }}/textfile_collector"
+
+- name: Exporters | Node exporter | Ensure apt metrics script
+  become: true
+  become_user: root
+  template:
+    src: apt-metrics.sh.j2
+    dest: "{{ node_apt_metrics_script_name }}"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Exporters | Node exporter | Ensure apt hook file
+  become: true
+  become_user: root
+  template:
+    src: 60prometheus.j2
+    dest: /etc/apt/apt.conf.d/60prometheus
+    owner: root
+    group: root
+    mode: 0644
