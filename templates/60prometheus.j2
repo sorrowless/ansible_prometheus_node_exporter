@@ -1,0 +1,7 @@
+APT::Update::Post-Invoke-Success {
+  "{{ node_apt_metrics_script_name }} || true"
+};
+
+DPkg::Post-Invoke {
+  "{{ node_apt_metrics_script_name }} || true"
+};

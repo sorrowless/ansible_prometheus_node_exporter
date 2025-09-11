@@ -14,12 +14,15 @@
             - '--path.sysfs=/rootfs/sys'
             - '--path.udev.data=/rootfs/run/udev/data'
             - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|etc)($$|/)'
+            - '--collector.textfile'
+            - '--collector.textfile.directory={{ node_textfile_collector_dir }}'
             - '--web.listen-address={{ node_exporter_host_address }}:{{ node_exporter_host_port }}'
             - '{{ node_exporter_additional_cmd_args }}'
           container_name: "{{ node_exporter_container_name }}"
           volumes:
             - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
             - /:/rootfs:ro
+            - "{{ node_textfile_collector_dir }}:{{ node_textfile_collector_dir }}"
           security_opt: "{{ node_exporter_security_opt }}"
           hostname: "{{ ansible_host }}"
           restart: always
