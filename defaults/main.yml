@@ -16,6 +16,8 @@ node_exporter_docker_labels:
 node_exporter_arch: linux-amd64
 node_exporter_metrics_path: metrics
 node_exporter_additional_cmd_args: ""
+node_exporter_extra_hosts:
+  - "{{ ansible_host }}:{{ ansible_ip }}"
 
 node_apt_metrics_script_name: /usr/share/apt-metrics.sh
 node_textfile_collector_dir: "{{ node_exporter_config_dir }}/textfile_collector"

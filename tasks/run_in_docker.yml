@@ -23,6 +23,7 @@
             - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
             - /:/rootfs:ro
             - "{{ node_textfile_collector_dir }}:{{ node_textfile_collector_dir }}"
+          extra_hosts: "{{ node_exporter_extra_hosts }}"
           security_opt: "{{ node_exporter_security_opt }}"
           hostname: "{{ ansible_host }}"
           restart: always
@@ -63,6 +64,7 @@
               - /proc:/host/proc:ro
               - /sys:/host/sys:ro
               - "{{ node_textfile_collector_dir }}:{{ node_textfile_collector_dir }}"
+            extra_hosts: "{{ node_exporter_extra_hosts }}"
             security_opt: "{{ node_exporter_security_opt }}"
             hostname: "{{ node_exporter_container_name }}"
             labels: "{{ node_exporter_docker_labels }}"
