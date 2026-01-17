@@ -19,3 +19,11 @@ node_exporter_additional_cmd_args: ""
 
 node_apt_metrics_script_name: /usr/share/apt-metrics.sh
 node_textfile_collector_dir: "{{ node_exporter_config_dir }}/textfile_collector"
+
+node_exporter_stack_name: victoriametrics
+node_exporter_swarm_cluster: false
+node_exporter_swarm_deploy:
+  mode: replicated
+  replicas: 1
+  placement:
+    constraints: []

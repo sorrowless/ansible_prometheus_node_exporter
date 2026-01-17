@@ -28,3 +28,51 @@
           restart: always
           labels: "{{ node_exporter_docker_labels }}"
           network_mode: host
+      networks:
+        default:
+          external:
+            name: "{{ node_exporter_docker_network_name }}"
+  when: not node_exporter_swarm_cluster or node_exporter_swarm_manager is undefined
+
+- name: Deploy docker node exporter container in swarm
+  community.docker.docker_stack:
+    state: present
+    name: "{{ node_exporter_stack_name }}"
+    with_registry_auth: yes
+    compose:
+      - version: '3.5'
+        services:
+          node_exporter:
+            image: "{{ node_exporter_docker_image }}"
+            command:
+              - '--collector.systemd'
+              - '--path.rootfs=/rootfs'
+              - '--path.procfs=/rootfs/proc'
+              - '--path.sysfs=/rootfs/sys'
+              - '--path.udev.data=/rootfs/run/udev/data'
+              - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|etc)($$|/)'
+              - '--collector.textfile'
+              - '--collector.textfile.directory={{ node_textfile_collector_dir }}'
+              - '--web.listen-address={{ node_exporter_host_address }}:{{ node_exporter_host_port }}'
+              - '{{ node_exporter_additional_cmd_args }}'
+            ports:
+              - "127.0.0.1:{{ node_exporter_host_port }}:9100"
+            volumes:
+              - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
+              - /:/rootfs:ro
+              - /proc:/host/proc:ro
+              - /sys:/host/sys:ro
+              - "{{ node_textfile_collector_dir }}:{{ node_textfile_collector_dir }}"
+            security_opt: "{{ node_exporter_security_opt }}"
+            hostname: "{{ node_exporter_container_name }}"
+            labels: "{{ node_exporter_docker_labels }}"
+            deploy: "{{ node_exporter_swarm_deploy }}"
+        networks:
+          default:
+            external:
+              name: "{{ node_exporter_docker_network_name }}"
+  run_once: true
+  delegate_to: "{{ node_exporter_swarm_manager }}"
+  when:
+    - node_exporter_swarm_cluster
+    - node_exporter_swarm_manager is defined
